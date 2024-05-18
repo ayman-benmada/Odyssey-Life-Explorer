@@ -1,11 +1,11 @@
 ---
 id: 18aa198a-c0af-4234-94e1-986fa94487d7
 blueprint: pages
-title: Homepage
+title: Home
 template: home
 author: 1
 updated_by: 1
-updated_at: 1716053764
+updated_at: 1716067005
 ---
 ## Paris Life Explorer !
 

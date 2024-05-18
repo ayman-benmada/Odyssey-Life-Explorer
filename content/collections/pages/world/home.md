@@ -1,15 +1,13 @@
 ---
-id: 6d4ffcd3-170b-498e-8b3e-a63e348bebb2
-blueprint: page
-title: Homepage
-author: 1
+id: 9664917b-8cba-41bf-a3ca-a31bab3cc9f3
+blueprint: pages
+title: Home
 template: home
+author: 1
 updated_by: 1
-updated_at: 1716053746
+updated_at: 1716035413
 ---
-## Rome Life Explorer !
-
-![Colisée](statamic://asset::assets::rome/rome-2.jpg)
+## Odyssey Life Explorer !
 
 Not sure where to do next? Here are a few ideas, but feel free to explore in your own way, in your own time.
 
