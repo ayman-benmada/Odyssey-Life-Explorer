@@ -1,0 +1,96 @@
+{
+    "name": "abenmada/odyssey-life-explorer",
+    "type": "project",
+    "description": "The ultimate guide to uncovering the world's wonders and creating unforgettable memories",
+    "keywords": [
+        "statamic",
+        "cms",
+        "laravel"
+    ],
+    "homepage": "https://odyssey-life-explorer.localhost",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ayman BENMADA"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11",
+        "laravel/tinker": "^2.9",
+        "statamic/cms": "^5.0"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.8.1",
+        "enlightn/enlightn": "^2.10",
+        "fakerphp/faker": "^1.23",
+        "friendsofphp/php-cs-fixer": "^3.56",
+        "larastan/larastan": "^2.0",
+        "laravel/envoy": "^2.9",
+        "laravel/pint": "^1.13",
+        "laravel/sail": "^1.26",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.0",
+        "nunomaduro/phpinsights": "^2.11",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.5",
+        "spatie/laravel-ignition": "^2.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "pre-update-cmd": [
+            "Statamic\\Console\\Composer\\Scripts::preUpdateCmd"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi",
+            "@php artisan statamic:install --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\""
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "phpstan": "phpstan analyse -c phpstan.neon -vvv --memory-limit=1024M",
+        "enlightn": "php -d memory_limit=512M artisan enlightn",
+        "insights": "php artisan insights --no-interaction",
+        "insights-fix": "php artisan insights --no-interaction --fix",
+        "phpcs": "vendor/bin/php-cs-fixer fix --dry-run",
+        "phpcs-fix": "vendor/bin/php-cs-fixer fix",
+        "lint": "composer phpcs-fix && composer insights-fix && composer phpstan && composer enlightn"
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true,
+            "pixelfear/composer-dist-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

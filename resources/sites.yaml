@@ -1,0 +1,13 @@
+world:
+    name: "{{ config:app:name }}"
+    url: "{{ config:app:url }}"
+    locale: fr_FR # This should correspond to the server's locale
+    lang: en_US
+paris:
+    name: Paris
+    url: 'http://paris.{{ config:app:domain }}'
+    locale: fr_FR
+rome:
+    name: Rome
+    url: 'http://rome.{{ config:app:domain }}'
+    locale: fr_FR

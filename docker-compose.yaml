@@ -1,0 +1,103 @@
+services:
+    traefik:
+        container_name: odyssey_life_explorer_traefik
+        image: traefik:2.11
+        command:
+            - --api.insecure=true
+            - --api.dashboard=true
+            - --providers.docker
+            - --providers.docker.exposedByDefault=false
+            - --entryPoints.web.address=:80
+        ports:
+            - "80:80"
+            - "8080:8080"
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.traefik.priority=10
+            - traefik.http.routers.traefik.rule=Host(`traefik.$APP_DOMAIN`)
+            - traefik.http.routers.traefik.service=traefik
+            - traefik.http.services.traefik.loadbalancer.server.port=8080
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+    web:
+        container_name: odyssey_life_explorer_web
+        image: thecodingmachine/php:8.3-v4-apache-node20
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.web.priority=9
+            - traefik.http.routers.web.rule=HostRegexp(`$APP_DOMAIN`, `{subdomain:[a-z]+(-[a-z]+)*}.$APP_DOMAIN`)
+            - traefik.http.routers.web.entrypoints=web
+        environment:
+            APACHE_DOCUMENT_ROOT: public
+            APACHE_EXTENSIONS_HTTP2: 1
+            PHP_EXTENSION_XDEBUG: 1
+            PHP_INI_XDEBUG__MODE: 'debug,coverage'
+            PHP_INI_ALLOW_URL_FOPEN: 0
+            PHP_INI_EXPOSE_PHP: 0
+            PHP_INI_DISPLAY_STARTUP_ERRORS: 0
+            PHP_INI_MEMORY_LIMIT: "512M"
+            PHP_EXTENSION_GD: 1
+            PHP_INI_UPLOAD_MAX_FILESIZE: "10M"
+            PHP_INI_POST_MAX_SIZE: "15M"
+            DB_CONNECTION: "$DB_CONNECTION"
+            DB_HOST: "$DB_HOST"
+            DB_PORT: "$DB_PORT"
+            DB_DATABASE: "$DB_DATABASE"
+            CRON_USER: root
+            CRON_SCHEDULE: "* * * * *"
+            CRON_COMMAND: php artisan schedule:run >> /dev/null 2>&1
+            STARTUP_COMMAND_1: composer install
+            STARTUP_COMMAND_2: envoy run web-local-setup
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+
+    mysql:
+        container_name: odyssey_life_explorer_mysql
+        image: mysql:8.0
+        restart: unless-stopped
+        volumes:
+            - mysql_data:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: "$DB_DATABASE"
+            MYSQL_USER: "$DB_USERNAME"
+            MYSQL_PASSWORD: "$DB_PASSWORD"
+            MYSQL_ROOT_PASSWORD: "$DB_ROOT_PASSWORD"
+
+    phpmyadmin:
+        container_name: odyssey_life_explorer_pma
+        image: phpmyadmin/phpmyadmin
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.phpmyadmin.priority=10
+            - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.$APP_DOMAIN`)
+            - traefik.http.routers.phpmyadmin.entrypoints=web
+        environment:
+            PMA_HOST: "$DB_HOST"
+            PMA_USER: "root"
+            PMA_PASSWORD: "$DB_ROOT_PASSWORD"
+
+    mailhog:
+        container_name: odyssey_life_explorer_mail
+        image: mailhog/mailhog:latest
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.mailhog.priority=10
+            - traefik.http.routers.mailhog.rule=Host(`mailhog.$APP_DOMAIN`)
+            - traefik.http.routers.mailhog.entrypoints=web
+            - traefik.http.services.mailhog.loadbalancer.server.port=8025
+
+    redis:
+        container_name: odyssey_life_explorer_redis
+        image: redis:alpine
+        command: redis-server --requirepass ${REDIS_PASSWORD}
+        restart: unless-stopped
+        labels:
+            - traefik.enable=false
+        volumes:
+            - ./redis/volume:/data:rw
+
+volumes:
+    mysql_data:
+        driver: local
