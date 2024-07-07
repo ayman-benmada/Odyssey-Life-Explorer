@@ -34,6 +34,6 @@ final class OpenAiController
             return new JsonResponse(['message' => $e->getMessage(), 'success' => false]);
         }
 
-        return new JsonResponse(['result' => $result, 'success' => true]);
+        return new JsonResponse(['result' => $result->choices[0]->message->content, 'success' => true]);
     }
 }
