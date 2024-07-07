@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="{{ site:short_locale }}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ title ? (site:name + ' - ' + title) : site:name }}</title>
+        {{ vite src="resources/js/site.js|resources/css/site.css" }}
+    </head>
+    <body class="bg-gray-100 font-sans leading-normal text-gray-800">
+        {{ partial:nav }}
+
+        <div class="mx-auto px-2 flex flex-col items-center justify-center" style="margin-top: 40px">
+            <form class="rounded px-8 pt-6 pb-8 mb-4" style="width: 80%">
+                <div class="mb-4">
+                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Interagissez avec ChatGPT pour obtenir des réponses et de l'aide instantanées :</label>
+                    <textarea id="message" rows="6" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Message ChatGPT" style="margin-top: 8px"></textarea>
+                </div>
+                <button type="button" class="text-white bg-blue-700 rounded-lg" style="padding: 10px 20px;" id="send-btn">Envoyer</button>
+            </form>
+
+            <div id="openai-response-content" class="px-8 pt-6 pb-8 mb-4" style="width: 80%"></div>
+        </div>
+    </body>
+
+    <script>
+        (function() {
+            const sendBtn = document.getElementById('send-btn');
+            const messageField = document.getElementById('message');
+            const openAiResponseContentEl = document.getElementById('openai-response-content');
+
+            const disableBtn = () => {
+                sendBtn.disabled = true;
+                sendBtn.classList.remove('bg-blue-700');
+                sendBtn.classList.add('bg-blue-500');
+            };
+
+            const enableBtn = () => {
+                sendBtn.disabled = false;
+                sendBtn.classList.add('bg-blue-700');
+                sendBtn.classList.remove('bg-blue-500');
+            };
+
+            sendBtn.addEventListener('click', function () {
+                if (messageField.value.length === 0) {
+                    toastr.error('Veuillez saisir un message');
+                    return;
+                }
+
+                disableBtn();
+
+                axios.post('/openai/send-message', {message: messageField.value})
+                    .then(function (response) {
+                        if (! response.data.success) {
+                            toastr.error(response.data.message);
+                        } else {
+                            openAiResponseContentEl.innerHTML = response.data.result;
+                            messageField.value = '';
+                        }
+
+                        enableBtn();
+                    })
+                    .catch(function () {
+                        toastr.error('Une erreur est survenue , veuillez réessayer ultérieurement');
+                        enableBtn();
+                    });
+            });
+        })();
+    </script>
+</html>
